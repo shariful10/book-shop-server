@@ -23,6 +23,7 @@ const userSchema = new Schema<TUser, UserModel>(
       enum: ["superAdmin", "admin", "user"],
       default: "user",
     },
+    profileImg: { type: String, default: "" },
     passwordChangedAt: { type: Date },
   },
   {

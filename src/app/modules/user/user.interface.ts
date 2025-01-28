@@ -5,8 +5,9 @@ export type TUser = {
   name: string;
   email: string;
   password: string;
-  role: "superAdmin" | "admin" | "user";
+  profileImg?: string;
   passwordChangedAt?: Date;
+  role: "superAdmin" | "admin" | "user";
 };
 
 export interface UserModel extends Model<TUser> {
