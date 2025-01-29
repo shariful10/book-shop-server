@@ -22,7 +22,7 @@ const validateUser_1 = require("../../utils/validateUser");
 const user_model_1 = require("../user/user.model");
 const auth_utils_1 = require("./auth.utils");
 const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield (0, validateUser_1.validateUser)(payload === null || payload === void 0 ? void 0 : payload.id);
+    const user = yield (0, validateUser_1.validateUser)(payload === null || payload === void 0 ? void 0 : payload.email);
     // Checking if the password is correct
     if (!(yield user_model_1.User.isPasswordMatched(payload === null || payload === void 0 ? void 0 : payload.password, user.password))) {
         // Access granted: Send Access token & Refresh token
@@ -30,7 +30,7 @@ const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     }
     // Create token and send it to the client
     const jwtPayload = {
-        userId: user.id,
+        email: user.email,
         role: user.role,
     };
     const accessToken = (0, auth_utils_1.createToken)(jwtPayload, config_1.default.jwtAccessSecret, config_1.default.jwtAccessExpiresIn);
@@ -38,32 +38,21 @@ const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     return {
         accessToken,
         refreshToken,
-        needsChangePassword: user === null || user === void 0 ? void 0 : user.needsChangePassword,
     };
 });
 const changePassword = (userData, payload) => __awaiter(void 0, void 0, void 0, function* () {
     // checking if the user is exist
-    const user = yield user_model_1.User.isUserExistsByCustomId(userData.userId);
+    const user = yield user_model_1.User.isUserExists(userData.email);
     if (!user) {
         throw new AppError_1.default(httpStatusCode_1.httpStatusCode.NOT_FOUND, "This user is not found !");
     }
-    // checking if the user is already deleted
-    const isDeleted = user === null || user === void 0 ? void 0 : user.isDeleted;
-    if (isDeleted) {
-        throw new AppError_1.default(httpStatusCode_1.httpStatusCode.FORBIDDEN, "This user is deleted !");
-    }
-    // checking if the user is blocked
-    const userStatus = user === null || user === void 0 ? void 0 : user.status;
-    if (userStatus === "blocked") {
-        throw new AppError_1.default(httpStatusCode_1.httpStatusCode.FORBIDDEN, "This user is blocked!");
-    }
     //checking if the password is correct
     if (!(yield user_model_1.User.isPasswordMatched(payload.oldPassword, user === null || user === void 0 ? void 0 : user.password)))
-        throw new AppError_1.default(httpStatusCode_1.httpStatusCode.FORBIDDEN, "Password do not matched");
+        throw new AppError_1.default(httpStatusCode_1.httpStatusCode.FORBIDDEN, "Password do not matched!");
     // Hash new password
     const newHashedPassword = yield bcrypt_1.default.hash(payload.newPassword, Number(config_1.default.bcryptSaltRounds));
     yield user_model_1.User.findOneAndUpdate({
-        id: userData.userId,
+        email: userData.email,
         role: userData.role,
     }, {
         password: newHashedPassword,
@@ -75,14 +64,14 @@ const changePassword = (userData, payload) => __awaiter(void 0, void 0, void 0, 
 const refreshToken = (token) => __awaiter(void 0, void 0, void 0, function* () {
     // Check if the token is valid
     const decoded = (0, auth_utils_1.verifyToken)(token, config_1.default.jwtRefreshSecret);
-    const { userId, iat } = decoded;
-    const user = yield (0, validateUser_1.validateUser)(userId);
+    const { email, iat } = decoded;
+    const user = yield (0, validateUser_1.validateUser)(email);
     if (user.passwordChangedAt &&
         user_model_1.User.isJWTIssuedBeforePasswordChanged(user.passwordChangedAt, iat)) {
         throw new AppError_1.default(httpStatusCode_1.httpStatusCode.UNAUTHORIZE, "You are not authorized");
     }
     const jwtPayload = {
-        userId: user.id,
+        email: user.email,
         role: user.role,
     };
     const accessToken = (0, auth_utils_1.createToken)(jwtPayload, config_1.default.jwtAccessSecret, config_1.default.jwtAccessExpiresIn);
@@ -93,18 +82,18 @@ const refreshToken = (token) => __awaiter(void 0, void 0, void 0, function* () {
 const forgetPassword = (userId) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield (0, validateUser_1.validateUser)(userId);
     const jwtPayload = {
-        userId: user.id,
+        email: user.email,
         role: user.role,
     };
     const resetToken = (0, auth_utils_1.createToken)(jwtPayload, config_1.default.jwtAccessSecret, "10m");
-    const resetUILink = `${config_1.default.resetPassUILink}?id=${user.id}&token=${resetToken}`;
+    const resetUILink = `${config_1.default.resetPassUILink}?id=${user.email}&token=${resetToken}`;
     (0, sendEmail_1.sendEmail)(user.email, resetUILink);
 });
 const resetPassword = (payload, token) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield (0, validateUser_1.validateUser)(payload.id);
+    const user = yield (0, validateUser_1.validateUser)(payload.email);
     // Check if the token is valid
     const decoded = (0, auth_utils_1.verifyToken)(token, config_1.default.jwtAccessSecret);
-    if (user.id !== decoded.userId) {
+    if (user.email !== decoded.email) {
         throw new AppError_1.default(httpStatusCode_1.httpStatusCode.FORBIDDEN, "You are not forbidden!");
     }
     // Hash new password

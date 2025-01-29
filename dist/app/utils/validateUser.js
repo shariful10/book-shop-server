@@ -16,19 +16,11 @@ exports.validateUser = void 0;
 const AppError_1 = __importDefault(require("../errors/AppError"));
 const user_model_1 = require("../modules/user/user.model");
 const httpStatusCode_1 = require("./httpStatusCode");
-const validateUser = (userId) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield user_model_1.User.isUserExistsByCustomId(userId);
+const validateUser = (email) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield user_model_1.User.isUserExists(email);
     // Checking if the user exists
     if (!user) {
         throw new AppError_1.default(httpStatusCode_1.httpStatusCode.NOT_FOUND, "User not found!");
-    }
-    // Checking if the user is already deleted
-    if (user.isDeleted) {
-        throw new AppError_1.default(httpStatusCode_1.httpStatusCode.FORBIDDEN, "This user is already deleted!");
-    }
-    // Checking if the user is blocked
-    if (user.status === "blocked") {
-        throw new AppError_1.default(httpStatusCode_1.httpStatusCode.FORBIDDEN, "This user is blocked!");
     }
     return user;
 });

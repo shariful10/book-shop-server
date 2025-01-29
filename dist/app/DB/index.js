@@ -16,13 +16,10 @@ const config_1 = __importDefault(require("../config"));
 const user_const_1 = require("../modules/user/user.const");
 const user_model_1 = require("../modules/user/user.model");
 const superUser = {
-    id: "0001",
-    email: "khanana900@gmail.com",
+    name: "Shariful Islam",
+    email: "sharifulislam@gmail.com",
     password: config_1.default.superAdminPassword,
-    needsChangePassword: false,
     role: user_const_1.USER_ROLE.superAdmin,
-    status: "in-progress",
-    isDeleted: false,
 };
 const seedSuperAdmin = () => __awaiter(void 0, void 0, void 0, function* () {
     // When database is connected, we will check is there  any user who is super admin

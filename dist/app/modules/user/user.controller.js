@@ -13,53 +13,43 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserControllers = void 0;
+const config_1 = __importDefault(require("../../config"));
 const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
+const httpStatusCode_1 = require("../../utils/httpStatusCode");
 const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
 const user_service_1 = require("./user.service");
-const createStudent = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { password, student: studentData } = req.body;
-    const result = yield user_service_1.UserServices.createStudentIntoDB(req.file, password, studentData);
+const createUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield user_service_1.UserServices.createUserIntoDB(req.file, req.body);
+    const { refreshToken, accessToken, user } = result;
+    const userData = {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        profileImg: user.profileImg,
+    };
+    res.cookie("refreshToken", refreshToken, {
+        secure: config_1.default.NODE_ENV === "production",
+        httpOnly: true,
+        sameSite: true,
+        maxAge: 1000 * 60 * 60 * 24 * 365,
+    });
     (0, sendResponse_1.default)(res, {
-        message: "Student is created successfully",
-        data: result,
+        statusCode: httpStatusCode_1.httpStatusCode.CREATED,
+        message: "User is created successfully!",
+        data: userData,
+        accessToken: accessToken,
     });
 }));
-const createFaculty = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { password, faculty: facultyData } = req.body;
-    const result = yield user_service_1.UserServices.createFacultyIntoDB(req.file, password, facultyData);
+const getAllUsers = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield user_service_1.UserServices.getAllUsersFromDB();
     (0, sendResponse_1.default)(res, {
-        message: "Faculty is created successfully",
-        data: result,
-    });
-}));
-const createAdmin = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { password, admin: adminData } = req.body;
-    const result = yield user_service_1.UserServices.createAdminIntoDB(req.file, password, adminData);
-    (0, sendResponse_1.default)(res, {
-        message: "Admin is created successfully",
-        data: result,
-    });
-}));
-const changeStatus = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id } = req.params;
-    const result = yield user_service_1.UserServices.changeStatusIntoDB(id, req.body);
-    (0, sendResponse_1.default)(res, {
-        message: "User status changed successfully!",
-        data: result,
-    });
-}));
-const getMe = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { userId, role } = req.user;
-    const result = yield user_service_1.UserServices.getMeFromDB(userId, role);
-    (0, sendResponse_1.default)(res, {
-        message: "User is retrieved successfully",
+        statusCode: httpStatusCode_1.httpStatusCode.OK,
+        message: "Users are retrieved successfully!",
         data: result,
     });
 }));
 exports.UserControllers = {
-    createStudent,
-    createFaculty,
-    createAdmin,
-    changeStatus,
-    getMe,
+    createUser,
+    getAllUsers,
 };

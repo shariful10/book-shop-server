@@ -26,22 +26,23 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthControllers = void 0;
 const config_1 = __importDefault(require("../../config"));
 const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
+const httpStatusCode_1 = require("../../utils/httpStatusCode");
 const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
 const auth_service_1 = require("./auth.service");
 const loginUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield auth_service_1.AuthServices.loginUser(req.body);
-    const { refreshToken, accessToken, needsChangePassword } = result;
+    const { refreshToken, accessToken } = result;
     res.cookie("refreshToken", refreshToken, {
         secure: config_1.default.NODE_ENV === "production",
         httpOnly: true,
-        sameSite: "none",
+        sameSite: true,
         maxAge: 1000 * 60 * 60 * 24 * 365,
     });
     (0, sendResponse_1.default)(res, {
+        statusCode: httpStatusCode_1.httpStatusCode.OK,
         message: "User is logged in successfully!",
         data: {
             accessToken,
-            needsChangePassword,
         },
     });
 }));
@@ -49,6 +50,7 @@ const changePassword = (0, catchAsync_1.default)((req, res) => __awaiter(void 0,
     const passwordData = __rest(req.body, []);
     yield auth_service_1.AuthServices.changePassword(req.user, passwordData);
     (0, sendResponse_1.default)(res, {
+        statusCode: httpStatusCode_1.httpStatusCode.OK,
         message: "Password is updated successfully!",
         data: null,
     });
@@ -57,6 +59,7 @@ const refreshToken = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
     const { refreshToken } = req.cookies;
     const result = yield auth_service_1.AuthServices.refreshToken(refreshToken);
     (0, sendResponse_1.default)(res, {
+        statusCode: httpStatusCode_1.httpStatusCode.OK,
         message: "Access token is retrieved successfully!",
         data: result,
     });
@@ -65,6 +68,7 @@ const forgetPassword = (0, catchAsync_1.default)((req, res) => __awaiter(void 0,
     const userId = req.body.id;
     const result = yield auth_service_1.AuthServices.forgetPassword(userId);
     (0, sendResponse_1.default)(res, {
+        statusCode: httpStatusCode_1.httpStatusCode.OK,
         message: "Reset link is generated successfully!",
         data: result,
     });
@@ -73,6 +77,7 @@ const resetPassword = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
     const token = req.headers.authorization;
     const result = yield auth_service_1.AuthServices.resetPassword(req.body, token);
     (0, sendResponse_1.default)(res, {
+        statusCode: httpStatusCode_1.httpStatusCode.OK,
         message: "Password reset successfully!",
         data: result,
     });

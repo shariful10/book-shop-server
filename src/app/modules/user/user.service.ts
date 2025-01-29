@@ -42,6 +42,23 @@ const createUserIntoDB = async (file: TUploadedFile, payload: TUser) => {
   };
 };
 
+const getAllUsersFromDB = async () => {
+  const result = await User.find().select("-password");
+  return result;
+};
+
+const getSingleUserFromDB = async (email: string) => {
+  const result = await User.findOne({ email }).select("-password");
+
+  if (!result) {
+    throw new Error("User not found");
+  }
+
+  return result;
+};
+
 export const UserServices = {
   createUserIntoDB,
+  getAllUsersFromDB,
+  getSingleUserFromDB,
 };

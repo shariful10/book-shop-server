@@ -12,6 +12,7 @@ type TResponse<T> = {
   message?: string;
   meta?: TMeta;
   data: T;
+  accessToken?: string | null;
 };
 
 const sendResponse = <T>(res: Response, data: TResponse<T>) => {
@@ -20,6 +21,7 @@ const sendResponse = <T>(res: Response, data: TResponse<T>) => {
     message: data?.message,
     meta: data.meta,
     data: data?.data,
+    accessToken: data.accessToken,
   });
 };
 

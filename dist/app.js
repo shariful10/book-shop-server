@@ -22,11 +22,14 @@ const app = (0, express_1.default)();
 // parsers
 app.use(express_1.default.json());
 app.use((0, cookie_parser_1.default)());
-app.use((0, cors_1.default)({ origin: ["http://localhost:5173"], credentials: true }));
-// app routes
-app.use("/api/v1", routes_1.default);
-const test = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    res.send(`<div style="background: black; border-radius: 15px; width: 700px; height: 200px; margin: auto; margin-top: 50px; display: flex; flex-direction: column; justify-content: center; align-items: center;"><h1 style="color: white; text-align: center;">Welcome to the server of PH University!</h1></div>`);
+app.use((0, cors_1.default)({
+    origin: ["http://localhost:5173", "https://book-shop-client-xi.vercel.app"],
+    credentials: true,
+}));
+// App routes
+app.use("/api", routes_1.default);
+const test = (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    res.send(`<div style="background: black; border-radius: 15px; width: 700px; height: 200px; margin: auto; margin-top: 50px; display: flex; flex-direction: column; justify-content: center; align-items: center;"><h1 style="color: white; text-align: center;">Welcome to the server of Book Shop API!</h1></div>`);
 });
 app.get("/", test);
 app.use(globalErrorHandler_1.default);

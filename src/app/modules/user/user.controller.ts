@@ -31,13 +31,22 @@ const createUser = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatusCode.CREATED,
     message: "User is created successfully!",
-    data: {
-      user: userData,
-      accessToken: accessToken,
-    },
+    data: userData,
+    accessToken: accessToken,
+  });
+});
+
+const getAllUsers = catchAsync(async (req, res) => {
+  const result = await UserServices.getAllUsersFromDB();
+
+  sendResponse(res, {
+    statusCode: httpStatusCode.OK,
+    message: "Users are retrieved successfully!",
+    data: result,
   });
 });
 
 export const UserControllers = {
   createUser,
+  getAllUsers,
 };

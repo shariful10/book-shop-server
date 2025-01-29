@@ -2,24 +2,19 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserValidations = void 0;
 const zod_1 = require("zod");
-const user_const_1 = require("./user.const");
 const createUserValidationSchema = zod_1.z.object({
-    password: zod_1.z
-        .string({
-        invalid_type_error: "Password must be a string",
-    })
-        .max(20, "Password can not be more than 20 characters")
-        .optional(),
-});
-const changeStatusValidationSchema = zod_1.z.object({
     body: zod_1.z.object({
-        status: zod_1.z.enum([...user_const_1.UserStatus], {
-            required_error: "Status is required",
-            invalid_type_error: "Status must be a string",
-        }),
+        name: zod_1.z
+            .string({
+            required_error: "Name is required",
+            invalid_type_error: "Name must be a string",
+        })
+            .max(25),
+        email: zod_1.z.string().email(),
+        password: zod_1.z.string().min(6),
+        role: zod_1.z.enum(["user", "admin", "superAdmin"]).optional().default("user"),
     }),
 });
 exports.UserValidations = {
     createUserValidationSchema,
-    changeStatusValidationSchema,
 };
