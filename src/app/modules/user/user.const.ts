@@ -1,8 +1,9 @@
 export const USER_ROLE = {
+  user: "user",
   admin: "admin",
-  student: "student",
-  faculty: "faculty",
   superAdmin: "superAdmin",
 } as const;
 
 export const UserStatus = ["in-progress", "blocked"];
+
+export const searchableFields = ["email", "name"];

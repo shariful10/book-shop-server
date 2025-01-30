@@ -13,9 +13,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserServices = void 0;
+const QueryBuilder_1 = __importDefault(require("../../builder/QueryBuilder"));
 const config_1 = __importDefault(require("../../config"));
+const AppError_1 = __importDefault(require("../../errors/AppError"));
+const httpStatusCode_1 = require("../../utils/httpStatusCode");
 const sendImageToCloudinary_1 = require("../../utils/sendImageToCloudinary");
 const auth_utils_1 = require("../auth/auth.utils");
+const user_const_1 = require("./user.const");
 const user_model_1 = require("./user.model");
 const createUserIntoDB = (file, payload) => __awaiter(void 0, void 0, void 0, function* () {
     if (file) {
@@ -38,19 +42,42 @@ const createUserIntoDB = (file, payload) => __awaiter(void 0, void 0, void 0, fu
         refreshToken,
     };
 });
-const getAllUsersFromDB = () => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield user_model_1.User.find().select("-password");
-    return result;
+const getAllUsersFromDB = (query) => __awaiter(void 0, void 0, void 0, function* () {
+    const userQuery = new QueryBuilder_1.default(user_model_1.User.find(), query)
+        .search(user_const_1.searchableFields)
+        .filter()
+        .sort()
+        .paginate()
+        .fields();
+    const meta = yield userQuery.countTotal();
+    const result = yield userQuery.modelQuery;
+    return {
+        meta,
+        result,
+    };
 });
-const getSingleUserFromDB = (email) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield user_model_1.User.findOne({ email }).select("-password");
+const getSingleUserFromDB = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield user_model_1.User.findById(userId).select("-password");
     if (!result) {
-        throw new Error("User not found");
+        throw new AppError_1.default(httpStatusCode_1.httpStatusCode.NOT_FOUND, "User not found");
     }
     return result;
+});
+const getMeFromDB = (email) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield user_model_1.User.findOne({ email });
+    return result;
+});
+const deleteUserFromDB = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const deletedUser = yield user_model_1.User.findByIdAndDelete(userId);
+    if (!deletedUser) {
+        throw new AppError_1.default(httpStatusCode_1.httpStatusCode.NOT_FOUND, "User not found");
+    }
+    return null;
 });
 exports.UserServices = {
     createUserIntoDB,
     getAllUsersFromDB,
+    getMeFromDB,
     getSingleUserFromDB,
+    deleteUserFromDB,
 };

@@ -1,7 +1,11 @@
+import QueryBuilder from "../../builder/QueryBuilder";
 import config from "../../config";
+import AppError from "../../errors/AppError";
 import { TUploadedFile } from "../../interface/file";
+import { httpStatusCode } from "../../utils/httpStatusCode";
 import { sendImageToCloudinary } from "../../utils/sendImageToCloudinary";
 import { createToken } from "../auth/auth.utils";
+import { searchableFields } from "./user.const";
 import { TUser } from "./user.interface";
 import { User } from "./user.model";
 
@@ -42,23 +46,52 @@ const createUserIntoDB = async (file: TUploadedFile, payload: TUser) => {
   };
 };
 
-const getAllUsersFromDB = async () => {
-  const result = await User.find().select("-password");
-  return result;
+const getAllUsersFromDB = async (query: Record<string, unknown>) => {
+  const userQuery = new QueryBuilder(User.find(), query)
+    .search(searchableFields)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
+
+  const meta = await userQuery.countTotal();
+  const result = await userQuery.modelQuery;
+
+  return {
+    meta,
+    result,
+  };
 };
 
-const getSingleUserFromDB = async (email: string) => {
-  const result = await User.findOne({ email }).select("-password");
+const getSingleUserFromDB = async (userId: string) => {
+  const result = await User.findById(userId).select("-password");
 
   if (!result) {
-    throw new Error("User not found");
+    throw new AppError(httpStatusCode.NOT_FOUND, "User not found");
   }
 
   return result;
 };
 
+const getMeFromDB = async (email: string) => {
+  const result = await User.findOne({ email });
+  return result;
+};
+
+const deleteUserFromDB = async (userId: string) => {
+  const deletedUser = await User.findByIdAndDelete(userId);
+
+  if (!deletedUser) {
+    throw new AppError(httpStatusCode.NOT_FOUND, "User not found");
+  }
+
+  return null;
+};
+
 export const UserServices = {
   createUserIntoDB,
   getAllUsersFromDB,
+  getMeFromDB,
   getSingleUserFromDB,
+  deleteUserFromDB,
 };
