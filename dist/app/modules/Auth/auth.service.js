@@ -28,13 +28,13 @@ const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
         // Access granted: Send Access token & Refresh token
         throw new AppError_1.default(httpStatusCode_1.httpStatusCode.FORBIDDEN, "Password is incorrect!");
     }
-    // Create token and send it to the client
+    // Create token
     const jwtPayload = {
         email: user.email,
         role: user.role,
     };
-    const accessToken = (0, auth_utils_1.createToken)(jwtPayload, config_1.default.jwtAccessSecret, config_1.default.jwtAccessExpiresIn);
-    const refreshToken = (0, auth_utils_1.createToken)(jwtPayload, config_1.default.jwtRefreshSecret, config_1.default.jwtRefreshExpiresIn);
+    const accessToken = (0, auth_utils_1.createToken)(jwtPayload, config_1.default.jwtAccessSecret, { expiresIn: "30d" });
+    const refreshToken = (0, auth_utils_1.createToken)(jwtPayload, config_1.default.jwtRefreshSecret, { expiresIn: "60d" });
     return {
         accessToken,
         refreshToken,
@@ -74,7 +74,7 @@ const refreshToken = (token) => __awaiter(void 0, void 0, void 0, function* () {
         email: user.email,
         role: user.role,
     };
-    const accessToken = (0, auth_utils_1.createToken)(jwtPayload, config_1.default.jwtAccessSecret, config_1.default.jwtAccessExpiresIn);
+    const accessToken = (0, auth_utils_1.createToken)(jwtPayload, config_1.default.jwtAccessSecret, { expiresIn: "30d" });
     return {
         accessToken,
     };
@@ -85,7 +85,9 @@ const forgetPassword = (userId) => __awaiter(void 0, void 0, void 0, function* (
         email: user.email,
         role: user.role,
     };
-    const resetToken = (0, auth_utils_1.createToken)(jwtPayload, config_1.default.jwtAccessSecret, "10m");
+    const resetToken = (0, auth_utils_1.createToken)(jwtPayload, config_1.default.jwtAccessSecret, {
+        expiresIn: config_1.default.jwtAccessExpiresIn,
+    });
     const resetUILink = `${config_1.default.resetPassUILink}?id=${user.email}&token=${resetToken}`;
     (0, sendEmail_1.sendEmail)(user.email, resetUILink);
 });

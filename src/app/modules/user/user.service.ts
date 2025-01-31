@@ -30,13 +30,13 @@ const createUserIntoDB = async (file: TUploadedFile, payload: TUser) => {
   const accessToken = createToken(
     jwtPayload,
     config.jwtAccessSecret as string,
-    config.jwtAccessExpiresIn as string,
+    { expiresIn: "30d" },
   );
 
   const refreshToken = createToken(
     jwtPayload,
     config.jwtRefreshSecret as string,
-    config.jwtRefreshExpiresIn as string,
+    { expiresIn: "60d" },
   );
 
   return {
