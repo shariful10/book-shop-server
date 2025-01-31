@@ -28,7 +28,15 @@ class QueryBuilder {
     }
     filter() {
         const queryObj = Object.assign({}, this.query);
-        const excludeField = ["searchTerm", "sort", "page", "limit", "fields"];
+        const excludeField = [
+            "searchTerm",
+            "sort",
+            "page",
+            "limit",
+            "fields",
+            "minPrice",
+            "maxPrice",
+        ];
         excludeField.forEach(el => delete queryObj[el]);
         this.modelQuery = this.modelQuery.find(queryObj);
         return this;
@@ -51,6 +59,24 @@ class QueryBuilder {
         var _a, _b, _c;
         const fields = ((_c = (_b = (_a = this === null || this === void 0 ? void 0 : this.query) === null || _a === void 0 ? void 0 : _a.fields) === null || _b === void 0 ? void 0 : _b.split(",")) === null || _c === void 0 ? void 0 : _c.join(" ")) || "-__v";
         this.modelQuery = this.modelQuery.select(fields);
+        return this;
+    }
+    priceFilter() {
+        var _a, _b;
+        const minPrice = Number((_a = this === null || this === void 0 ? void 0 : this.query) === null || _a === void 0 ? void 0 : _a.minPrice);
+        const maxPrice = Number((_b = this === null || this === void 0 ? void 0 : this.query) === null || _b === void 0 ? void 0 : _b.maxPrice);
+        const priceQuery = {};
+        if (!isNaN(minPrice)) {
+            priceQuery.$gte = minPrice;
+        }
+        if (!isNaN(maxPrice)) {
+            priceQuery.$lte = maxPrice;
+        }
+        if (Object.keys(priceQuery).length > 0) {
+            this.modelQuery = this.modelQuery.find({
+                price: priceQuery,
+            });
+        }
         return this;
     }
     countTotal() {

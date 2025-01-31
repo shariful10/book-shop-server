@@ -59,16 +59,6 @@ const getSingleUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
         data: result,
     });
 }));
-// const updateUser = catchAsync(async (req, res) => {
-//   const { id: userId } = req.params;
-//   const user = req.body;
-//   const result = await UserServices.updateUserIntoDB(userId, user);
-//   sendResponse(res, {
-//     statusCode: httpStatusCode.OK,
-//     message: "User is updated successfully",
-//     data: result,
-//   });
-// });
 const deleteUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { userId } = req.params;
     const result = yield user_service_1.UserServices.deleteUserFromDB(userId);
@@ -79,11 +69,20 @@ const deleteUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, voi
     });
 }));
 const getMe = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { email } = req.user;
+    const { email } = req.params;
     const result = yield user_service_1.UserServices.getMeFromDB(email);
     (0, sendResponse_1.default)(res, {
         statusCode: httpStatusCode_1.httpStatusCode.OK,
         message: "User is retrieved successfully",
+        data: result,
+    });
+}));
+const updateUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userId } = req.params;
+    const result = yield user_service_1.UserServices.updateUserFromDB(req.file, userId, req.body);
+    (0, sendResponse_1.default)(res, {
+        statusCode: httpStatusCode_1.httpStatusCode.OK,
+        message: "User is updated successfully!",
         data: result,
     });
 }));
@@ -93,4 +92,5 @@ exports.UserControllers = {
     getSingleUser,
     deleteUser,
     getMe,
+    updateUser,
 };

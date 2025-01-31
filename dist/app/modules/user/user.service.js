@@ -64,7 +64,7 @@ const getSingleUserFromDB = (userId) => __awaiter(void 0, void 0, void 0, functi
     return result;
 });
 const getMeFromDB = (email) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield user_model_1.User.findOne({ email });
+    const result = yield user_model_1.User.findOne({ email }).select("-password");
     return result;
 });
 const deleteUserFromDB = (userId) => __awaiter(void 0, void 0, void 0, function* () {
@@ -74,10 +74,28 @@ const deleteUserFromDB = (userId) => __awaiter(void 0, void 0, void 0, function*
     }
     return null;
 });
+const updateUserFromDB = (file, userId, updatedData) => __awaiter(void 0, void 0, void 0, function* () {
+    if (file) {
+        // Send image to Cloudinary
+        const imageName = `${updatedData === null || updatedData === void 0 ? void 0 : updatedData.email}${updatedData === null || updatedData === void 0 ? void 0 : updatedData.name}`;
+        const path = file === null || file === void 0 ? void 0 : file.path;
+        const { secure_url } = yield (0, sendImageToCloudinary_1.sendImageToCloudinary)(imageName, path);
+        updatedData.profileImg = secure_url;
+    }
+    const updatedUser = yield user_model_1.User.findByIdAndUpdate(userId, updatedData, {
+        new: true,
+    });
+    // Check the book is exists or not
+    if (!updatedUser) {
+        throw new AppError_1.default(httpStatusCode_1.httpStatusCode.NOT_FOUND, "User not found");
+    }
+    return updatedUser;
+});
 exports.UserServices = {
     createUserIntoDB,
     getAllUsersFromDB,
     getMeFromDB,
     getSingleUserFromDB,
     deleteUserFromDB,
+    updateUserFromDB,
 };

@@ -74,7 +74,7 @@ const getSingleUserFromDB = async (userId: string) => {
 };
 
 const getMeFromDB = async (email: string) => {
-  const result = await User.findOne({ email });
+  const result = await User.findOne({ email }).select("-password");
   return result;
 };
 
@@ -88,10 +88,38 @@ const deleteUserFromDB = async (userId: string) => {
   return null;
 };
 
+const updateUserFromDB = async (
+  file: TUploadedFile,
+  userId: string,
+  updatedData: Partial<TUser>,
+) => {
+  if (file) {
+    // Send image to Cloudinary
+    const imageName = `${updatedData?.email}${updatedData?.name}`;
+    const path = file?.path;
+
+    const { secure_url } = await sendImageToCloudinary(imageName, path);
+
+    updatedData.profileImg = secure_url as string;
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(userId, updatedData, {
+    new: true,
+  });
+
+  // Check the book is exists or not
+  if (!updatedUser) {
+    throw new AppError(httpStatusCode.NOT_FOUND, "User not found");
+  }
+
+  return updatedUser;
+};
+
 export const UserServices = {
   createUserIntoDB,
   getAllUsersFromDB,
   getMeFromDB,
   getSingleUserFromDB,
   deleteUserFromDB,
+  updateUserFromDB,
 };

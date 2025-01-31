@@ -31,16 +31,23 @@ router.get(
   UserControllers.getSingleUser,
 );
 
-router.get(
-  "/me",
-  auth(USER_ROLE.superAdmin, USER_ROLE.admin, USER_ROLE.user),
-  UserControllers.getMe,
-);
+router.get("/me/:email", UserControllers.getMe);
 
 router.delete(
   "/:userId",
   auth(USER_ROLE.superAdmin, USER_ROLE.admin),
   UserControllers.deleteUser,
+);
+
+router.patch(
+  "/:userId",
+  upload.single("file"),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = JSON.parse(req.body.data);
+    next();
+  },
+  validateRequest(UserValidations.updateUserValidationSchema),
+  UserControllers.updateUser,
 );
 
 export const UserRoutes = router;

@@ -58,18 +58,6 @@ const getSingleUser = catchAsync(async (req, res) => {
   });
 });
 
-// const updateUser = catchAsync(async (req, res) => {
-//   const { id: userId } = req.params;
-//   const user = req.body;
-//   const result = await UserServices.updateUserIntoDB(userId, user);
-
-//   sendResponse(res, {
-//     statusCode: httpStatusCode.OK,
-//     message: "User is updated successfully",
-//     data: result,
-//   });
-// });
-
 const deleteUser = catchAsync(async (req, res) => {
   const { userId } = req.params;
   const result = await UserServices.deleteUserFromDB(userId);
@@ -82,13 +70,28 @@ const deleteUser = catchAsync(async (req, res) => {
 });
 
 const getMe = catchAsync(async (req, res) => {
-  const { email } = req.user;
+  const { email } = req.params;
 
-  const result = await UserServices.getMeFromDB(email);
+  const result = await UserServices.getMeFromDB(email as string);
 
   sendResponse(res, {
     statusCode: httpStatusCode.OK,
     message: "User is retrieved successfully",
+    data: result,
+  });
+});
+
+const updateUser = catchAsync(async (req, res) => {
+  const { userId } = req.params;
+  const result = await UserServices.updateUserFromDB(
+    req.file as TUploadedFile,
+    userId,
+    req.body,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatusCode.OK,
+    message: "User is updated successfully!",
     data: result,
   });
 });
@@ -99,4 +102,5 @@ export const UserControllers = {
   getSingleUser,
   deleteUser,
   getMe,
+  updateUser,
 };
