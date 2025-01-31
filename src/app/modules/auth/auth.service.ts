@@ -18,7 +18,7 @@ const loginUser = async (payload: TLoginUser) => {
     throw new AppError(httpStatusCode.FORBIDDEN, "Password is incorrect!");
   }
 
-  // Create token and send it to the client
+  // Create token
   const jwtPayload = {
     email: user.email,
     role: user.role,
