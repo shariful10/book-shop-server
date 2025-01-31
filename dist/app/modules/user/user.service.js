@@ -18,9 +18,9 @@ const config_1 = __importDefault(require("../../config"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const httpStatusCode_1 = require("../../utils/httpStatusCode");
 const sendImageToCloudinary_1 = require("../../utils/sendImageToCloudinary");
-const auth_utils_1 = require("../auth/auth.utils");
 const user_const_1 = require("./user.const");
 const user_model_1 = require("./user.model");
+const user_utils_1 = require("./user.utils");
 const createUserIntoDB = (file, payload) => __awaiter(void 0, void 0, void 0, function* () {
     if (file) {
         // Send image to Cloudinary
@@ -34,8 +34,8 @@ const createUserIntoDB = (file, payload) => __awaiter(void 0, void 0, void 0, fu
         email: payload.email,
         role: payload.role,
     };
-    const accessToken = (0, auth_utils_1.createToken)(jwtPayload, config_1.default.jwtAccessSecret, { expiresIn: "30d" });
-    const refreshToken = (0, auth_utils_1.createToken)(jwtPayload, config_1.default.jwtRefreshSecret, { expiresIn: "60d" });
+    const accessToken = (0, user_utils_1.createToken)(jwtPayload, config_1.default.jwtAccessSecret, { expiresIn: "30d" });
+    const refreshToken = (0, user_utils_1.createToken)(jwtPayload, config_1.default.jwtRefreshSecret, { expiresIn: "60d" });
     return {
         user,
         accessToken,

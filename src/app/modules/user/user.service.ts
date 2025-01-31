@@ -4,10 +4,10 @@ import AppError from "../../errors/AppError";
 import { TUploadedFile } from "../../interface/file";
 import { httpStatusCode } from "../../utils/httpStatusCode";
 import { sendImageToCloudinary } from "../../utils/sendImageToCloudinary";
-import { createToken } from "../auth/auth.utils";
 import { searchableFields } from "./user.const";
 import { TUser } from "./user.interface";
 import { User } from "./user.model";
+import { createToken } from "./user.utils";
 
 const createUserIntoDB = async (file: TUploadedFile, payload: TUser) => {
   if (file) {
