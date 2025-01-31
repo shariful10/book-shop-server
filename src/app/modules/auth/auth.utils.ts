@@ -1,5 +1,6 @@
 import jwt, { JwtPayload, SignOptions } from "jsonwebtoken";
 
+// Old style
 // export const createToken = (
 //   jwtPayload: { email: string; role: string },
 //   secret: string,
